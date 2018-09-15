@@ -15,7 +15,9 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class AmazonClient {
@@ -56,19 +58,38 @@ public class AmazonClient {
     }
 
     // 파일 업로드
-    public String uploadFile(MultipartFile multipartFile) {
+//    public String uploadFile(MultipartFile multipartFile) {
+//
+//        String fileUrl = "";
+//        try {
+//            File file = convertMultiPartToFile(multipartFile); // 파일형식
+//            String fileName = generateFileName(multipartFile); // 파일이름
+//            fileUrl = endpointUrl + "/" + bucketName + "/" + fileName; // url 설정
+//            uploadFileTos3bucket(fileName, file); // 버킷에 저장될 파일이
+//            file.delete();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return fileUrl;
+//    }
+
+    public List<String> uploadFile(MultipartFile[] multipartFile) {
 
         String fileUrl = "";
+        List<String> returnURL = new ArrayList<>();
         try {
-            File file = convertMultiPartToFile(multipartFile); // 파일형식
-            String fileName = generateFileName(multipartFile); // 파일이름
-            fileUrl = endpointUrl + "/" + bucketName + "/" + fileName; // url 설정
-            uploadFileTos3bucket(fileName, file); // 버킷에 저장될 파일이
-            file.delete();
+            for (MultipartFile fileOne : multipartFile){
+                File file = convertMultiPartToFile(fileOne); // 파일형식
+                String fileName = generateFileName(fileOne); // 파일이름
+                fileUrl = endpointUrl + "/" + bucketName + "/" + fileName; // url 설정
+                returnURL.add(fileUrl);
+                uploadFileTos3bucket(fileName, file); // 버킷에 저장될 파일이
+                file.delete();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return fileUrl;
+        return returnURL;
     }
 
     // 파일 삭제
